@@ -1,0 +1,260 @@
+{
+	"info": {
+		"_postman_id": "1722c3e6-1dca-4232-8ce6-e5d619e327f6",
+		"name": "BlogPostManagement",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "29759644"
+	},
+	"item": [
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"saleksanyan\",\n    \"password\": \"12345678\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:3000/user"
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"y\",\n    \"password\": \"333\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:3000/user/1de82219-98bb-41b2-b53c-1b1e635e0442"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User List",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:3000/user/list"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User by Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:3000/user/1de82219-98bb-41b2-b53c-1b1e635e0442"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Blog Post",
+			"item": [
+				{
+					"name": "Get Post List",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/post/list",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"post",
+								"list"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "3",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "5",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Post",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"First Post\",\n    \"content\": \"Post content\",\n    \"authorId\": \"de4352f7-35cb-4e5d-aac7-85ad646bf89d\",\n    \"categories\": [\"f0cf2dd8-98fc-4bc9-afc8-46e38165c3c1\", \"52d82085-750d-4db5-85f2-1bd9e4ab9982\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:3000/post"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Post",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"First Post2\",\n    \"content\": \"Post content2\",\n    \"authorId\": \"de4352f7-35cb-4e5d-aac7-85ad646bf89d\",\n    \"categories\": [\"f0cf2dd8-98fc-4bc9-afc8-46e38165c3c1\", \"52d82085-750d-4db5-85f2-1bd9e4ab9982\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:3000/post/86e2aed1-02ef-4191-b819-87a018f53cc4"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Post by Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:3000/post/0f24cc62-52bc-4627-ab5c-6a4d0c7bd557"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Post",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "http://localhost:3000/post/0f24cc62-52bc-4627-ab5c-6a4d0c7bd557"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Post by Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:3000/post/status/inactive"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Post Status",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"active\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:3000/post/86e2aed1-02ef-4191-b819-87a018f53cc4"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Category",
+			"item": [
+				{
+					"name": "Create Category",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"first category\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:3000/category"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Category List",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/category/list",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"category",
+								"list"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "2",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Category by Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:3000/category/585eefec-3d67-4b91-b28e-a2ae4d31e615"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Category",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "http://localhost:3000/category/585eefec-3d67-4b91-b28e-a2ae4d31e615"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
