@@ -52,4 +52,11 @@ MAIL= # Your email address
 MAIL_PASSWORD= # Your email password
 SENDER_MAIL= # The verified sender email
 HOST_MAIL= # SMTP host for your email provider
+
+
+SENDGRID_API_KEY= # Your sendgrid API key
+SENDER_EMAIL= # Your sendgrid email
+
+JWT_SECRET_KEY= # Your JWT key
+JWT_EXPIRES_IN= # JWT expiration time
 ```
