@@ -44,7 +44,18 @@ export class UserController {
     return await this.userService.list(page, limit);
   }
 
-  @Get(":id")
+  @HttpCode(200)
+  @Get("/verify")
+  async resendVerificationCode(
+    @Req() req: Request,
+  ) {    
+    const userId = (req as any).user;
+    return await this.userService.resendCode(
+      userId,
+    );
+  }
+
+  @Get("/:id")
   async getUserById(
     @Param("id", CheckUUIDPipe) id: string,
   ): Promise<UserOutputDto> {
@@ -100,7 +111,7 @@ export class UserController {
   }
 
   @HttpCode(200)
-  @Patch("register")
+  @Patch("/register")
   async registerWithVerficationCode(
     @Body() verificationCodeDto: VerificationCodeDto,
     @Req() req: Request,

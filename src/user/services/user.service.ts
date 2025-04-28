@@ -26,6 +26,7 @@ import { AccessTokenEntity } from "../entities/access-token.entity";
 import { UserEntity } from "../entities/user.entity";
 import { VerificationCodeEntity } from "../entities/verification-code.entity";
 import { UserStatusEnum } from "src/core/enums/user.enum";
+import { ExceededVerificationCodeAttemptsException } from "src/core/exceptions/exceeded-verification-code-attempts.exception copy";
 
 @Injectable()
 export class UserService {
@@ -77,7 +78,15 @@ export class UserService {
         throw new ExpiredVerificationCodeException();
       }
 
-      if (verificationCode !== storedVerificationCode.code) {
+      if(storedVerificationCode.attemp_count > 3) {
+        throw new ExceededVerificationCodeAttemptsException();
+      }
+
+      if (verificationCode !== storedVerificationCode.code) {        
+        await queryRunner.manager.getRepository(VerificationCodeEntity).update(storedVerificationCode.id, {
+          attemp_count: (storedVerificationCode.attemp_count+1),
+        });
+
         throw new WrongVerificationCodeException();
       }
 
@@ -92,7 +101,13 @@ export class UserService {
 
       return new UserOutputDto(user);
     } catch (error) {
+      console.log( error, " ", WrongVerificationCodeException, " error instanceof VerificationCodeNotFoundException ", error instanceof VerificationCodeNotFoundException);
+      
+      if (error instanceof WrongVerificationCodeException) {
+        await queryRunner.commitTransaction();
+      } else {
       await queryRunner.rollbackTransaction();
+      }
       throw error;
     } finally {
       await queryRunner.release();
@@ -129,7 +144,7 @@ export class UserService {
         throw new VerificationCodeNotFoundException();
       }
 
-      if (storedVerificationCode.expires_at < new Date()) {
+      if (storedVerificationCode.expires_at < new Date() || storedVerificationCode.attemp_count > 3) {
         await queryRunner.manager
           .getRepository(VerificationCodeEntity)
           .update(storedVerificationCode.id, {
@@ -140,6 +155,12 @@ export class UserService {
       }
 
       if (verificationCode !== storedVerificationCode.code) {
+        await queryRunner.manager.getRepository(VerificationCodeEntity).update(storedVerificationCode.id, {
+          attemp_count: storedVerificationCode.attemp_count+1,
+        });
+
+        await queryRunner.commitTransaction();
+
         throw new WrongVerificationCodeException();
       }
 
@@ -157,6 +178,67 @@ export class UserService {
       await queryRunner.commitTransaction();
 
       return new UserOutputDto(user);
+    } catch (error) {
+      if (!(error instanceof VerificationCodeNotFoundException)) {
+        await queryRunner.rollbackTransaction();
+      }
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async resendCode(   
+    userId: string,
+  ): Promise<{code: string}> {
+    const queryRunner =
+      this.userRepository.manager.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const user = await queryRunner.manager
+        .getRepository(UserEntity)
+        .findOne({ where: { id: userId } });
+
+      if (!user) {
+        throw new UserNotFoundException();
+      }
+
+      const storedVerificationCode = await queryRunner.manager
+        .getRepository(VerificationCodeEntity)
+        .findOne({
+          where: {
+            user: { id: userId },
+            status: VerificationCodeStatusEnum.ACTIVE,
+          },
+        });
+
+      if (storedVerificationCode) {
+        await queryRunner.manager
+          .getRepository(VerificationCodeEntity)
+          .update(storedVerificationCode.id, {
+            status: VerificationCodeStatusEnum.INACTIVE,
+          });
+      }
+
+      const code = await this.createVerificationCode(user, queryRunner);
+
+      await this.emailProvider.sendEmail(
+        user.email,
+        "Login verification",
+        {
+          username: user.username,
+          digit1: code.charAt(0),
+          digit2: code.charAt(1),
+          digit3: code.charAt(2),
+          digit4: code.charAt(3),
+        },
+        "registration-confirmation/index",
+      );
+
+      await queryRunner.commitTransaction();
+
+      return {code: code};
     } catch (error) {
       await queryRunner.rollbackTransaction();
       throw error;

@@ -57,7 +57,7 @@ export class AuthMiddleware implements NestMiddleware {
     if (!existingAccessToken) {
       throw new UnauthorizedException();
     }
-
+        
     req["user"] = user.id;
     next();
   }
