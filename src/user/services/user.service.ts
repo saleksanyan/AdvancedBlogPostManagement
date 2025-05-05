@@ -27,6 +27,7 @@ import { UserEntity } from "../entities/user.entity";
 import { VerificationCodeEntity } from "../entities/verification-code.entity";
 import { UserStatusEnum } from "src/core/enums/user.enum";
 import { ExceededVerificationCodeAttemptsException } from "src/core/exceptions/exceeded-verification-code-attempts.exception copy";
+import { UserPostOutputDto } from "../dtos/output/user-post.dto";
 
 @Injectable()
 export class UserService {
@@ -41,7 +42,7 @@ export class UserService {
   async loginWithVerficationCode(
     verificationCode: string,
     userId: string,
-  ): Promise<UserOutputDto> {
+  ): Promise<UserPostOutputDto> {
     const queryRunner =
       this.userRepository.manager.connection.createQueryRunner();
     await queryRunner.connect();
@@ -49,7 +50,7 @@ export class UserService {
     try {
       const user = await queryRunner.manager
         .getRepository(UserEntity)
-        .findOne({ where: { id: userId } });
+        .findOne({ where: { id: userId }, relations: ["blogPosts"] });
 
       if (!user) {
         throw new UserNotFoundException();
@@ -99,10 +100,8 @@ export class UserService {
 
       await queryRunner.commitTransaction();
 
-      return new UserOutputDto(user);
-    } catch (error) {
-      console.log( error, " ", WrongVerificationCodeException, " error instanceof VerificationCodeNotFoundException ", error instanceof VerificationCodeNotFoundException);
-      
+      return new UserPostOutputDto(user);
+    } catch (error) {      
       if (error instanceof WrongVerificationCodeException) {
         await queryRunner.commitTransaction();
       } else {
@@ -117,7 +116,7 @@ export class UserService {
   async registerWithVerficationCode(
     verificationCode: string,
     userId: string,
-  ): Promise<UserOutputDto> {
+  ): Promise<UserPostOutputDto> {
     const queryRunner =
       this.userRepository.manager.connection.createQueryRunner();
     await queryRunner.connect();
@@ -125,7 +124,7 @@ export class UserService {
     try {
       const user = await queryRunner.manager
         .getRepository(UserEntity)
-        .findOne({ where: { id: userId } });
+        .findOne({ where: { id: userId }, relations: ["blogPosts"] });
 
       if (!user || user.status != UserStatusEnum.UNVERIFIED) {
         throw new UserNotFoundException();
@@ -175,11 +174,20 @@ export class UserService {
         status: UserStatusEnum.ACTIVE,
       });
 
+      const accessToken = await queryRunner.manager.getRepository(AccessTokenEntity).findOne({
+        where: { user: { id: userId } }
+      });
+
+      await queryRunner.manager.getRepository(AccessTokenEntity).update(accessToken.id, {
+        is_active: false
+      });
+
       await queryRunner.commitTransaction();
 
-      return new UserOutputDto(user);
+      return new UserPostOutputDto(user);
     } catch (error) {
-      if (!(error instanceof VerificationCodeNotFoundException)) {
+      
+      if (!(error instanceof WrongVerificationCodeException)) {
         await queryRunner.rollbackTransaction();
       }
       throw error;
@@ -213,7 +221,15 @@ export class UserService {
           },
         });
 
-      if (storedVerificationCode) {
+        const oneMinute = 60 * 1000;
+        if (
+          storedVerificationCode &&
+          new Date().getTime() - storedVerificationCode.created_at.getTime() <
+            oneMinute
+        ) {
+          throw new VerificationCodeRateLimitException();
+        }
+        if (storedVerificationCode) {
         await queryRunner.manager
           .getRepository(VerificationCodeEntity)
           .update(storedVerificationCode.id, {
@@ -318,6 +334,7 @@ export class UserService {
     entity.user = user;
     entity.token = await this.jwtService.signAsync(payload, {
       secret: process.env.JWT_SECRET_KEY,
+      expiresIn: process.env.JWT_EXPIRES_IN
     });
 
     return await queryRunner.manager
@@ -528,13 +545,13 @@ export class UserService {
     );
   }
 
-  async getById(id: string): Promise<UserOutputDto> {
-    const user = await this.userRepository.findOne({ where: { id: id } });
+  async getById(id: string): Promise<UserPostOutputDto> {
+    const user = await this.userRepository.findOne({ where: { id: id }, relations: ["blogPosts"] });
     if (!user) {
       throw new UserNotFoundException();
     }
 
-    return new UserOutputDto(user);
+    return new UserPostOutputDto(user);
   }
 
   async register(

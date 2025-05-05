@@ -112,4 +112,24 @@ export class CategoryService {
     );
     return categories;
   }
+
+  async findByNames(categoryNames: string[]): Promise<CategoryEntity[]> {
+    const categories: CategoryEntity[] = await Promise.all(
+      categoryNames.map(async (categoryName) => {
+        let category = await this.repository.findOne({
+          where: { name: categoryName },
+        });
+
+        if (!category) {
+          await this.create({name: categoryName});
+          category = await this.repository.findOne({
+            where: { name: categoryName },
+          });  
+        }
+
+        return category;
+      }),
+    );
+    return categories;
+  }
 }

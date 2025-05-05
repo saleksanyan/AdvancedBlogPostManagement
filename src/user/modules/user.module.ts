@@ -35,6 +35,11 @@ export class UserModule {
         { path: "user/login", method: RequestMethod.POST },
         { path: "user/forget-password", method: RequestMethod.POST },
         { path: "user", method: RequestMethod.POST },
+        { path: "post/:id", method: RequestMethod.GET },
+        { path: "category/list", method: RequestMethod.GET },
+        { path: "post/user/:username", method: RequestMethod.GET },
+        { path: "post/category/:categoryName", method: RequestMethod.GET },
+        { path: "search", method: RequestMethod.GET },
       )
       .forRoutes("*");
   }

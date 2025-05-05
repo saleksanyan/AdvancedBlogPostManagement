@@ -9,7 +9,6 @@ import { BlogPostEntity } from "../entities/blog-post.entity";
 import { Repository } from "typeorm";
 import { Paginator } from "src/core/paginator/paginator";
 import { BlogPostNotFoundException } from "../../core/exceptions/blog-post-not-found.exception";
-import { UserService } from "../../user/services/user.service";
 import { CategoryService } from "../../category/services/category.service";
 import { Inject } from "@nestjs/common";
 import { EmailProvider } from "../../core/email/interfaces/email-provider.interface";
@@ -52,10 +51,58 @@ export class BlogPostService {
     const options = { page, limit };
 
     const queryBuilder = this.repository
+    .createQueryBuilder("blogPost")
+    .innerJoin("blogPost.categories", "categories", "categories.name = :categoryName", { categoryName })
+    .leftJoinAndSelect("blogPost.author", "author")
+    .leftJoinAndSelect("blogPost.categories", "allCategories");
+  
+    const paginatedResult = await Paginator.paginate<BlogPostEntity>(
+      queryBuilder,
+      options,
+    );    
+
+    return new BlogPostsWithCount(
+      paginatedResult.items.map((post) => new BlogPostOutputDto(post)),
+      paginatedResult.meta.totalItems,
+    );
+  }
+
+  async getByUsername(
+    page: number,
+    limit: number,
+    username: string,
+  ): Promise<BlogPostsWithCount> {
+    const options = { page, limit };
+
+    const queryBuilder = this.repository
       .createQueryBuilder("blogPost")
       .leftJoinAndSelect("blogPost.author", "author")
       .leftJoinAndSelect("blogPost.categories", "categories")
-      .where("categories.name = :categoryName", { categoryName });
+      .where("author.username = :username", { username });
+
+    const paginatedResult = await Paginator.paginate<BlogPostEntity>(
+      queryBuilder,
+      options,
+    );
+
+    return new BlogPostsWithCount(
+      paginatedResult.items.map((post) => new BlogPostOutputDto(post)),
+      paginatedResult.meta.totalItems,
+    );
+  }
+
+
+  async getByTitle(
+    page: number,
+    limit: number,
+    title: string,
+  ): Promise<BlogPostsWithCount> {
+    const options = { page, limit };
+    const queryBuilder = this.repository
+      .createQueryBuilder("blogPost")
+      .leftJoinAndSelect("blogPost.author", "author")
+      .leftJoinAndSelect("blogPost.categories", "categories")
+      .where("blogPost.title = :title", { title });
 
     const paginatedResult = await Paginator.paginate<BlogPostEntity>(
       queryBuilder,
@@ -100,6 +147,7 @@ export class BlogPostService {
     if (!entity) {
       throw new BlogPostNotFoundException();
     }
+console.log(entity);
 
     return new BlogPostOutputDto(entity);
   }
@@ -128,7 +176,7 @@ export class BlogPostService {
           where: { id: authorId },
         });
 
-      const categories = await this.categoryService.findByIds(
+      const categories = await this.categoryService.findByNames(
         createBlogPostInputDto.categories,
       );
 
@@ -137,6 +185,7 @@ export class BlogPostService {
         title: createBlogPostInputDto.title,
         content: createBlogPostInputDto.content,
         categories: categories,
+        mood: createBlogPostInputDto.mood
       });
 
       const savedEntity = await queryRunner.manager
@@ -197,6 +246,7 @@ export class BlogPostService {
 
       post.content = updateBlogPostInputDto.content;
       post.title = updateBlogPostInputDto.title;
+      post.mood = updateBlogPostInputDto.mood; 
 
       const updatedPost = await queryRunner.manager
         .getRepository(BlogPostEntity)

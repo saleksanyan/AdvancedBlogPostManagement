@@ -1,4 +1,5 @@
-import { IsArray, IsNotEmpty, IsString, IsUUID } from "class-validator";
+import { IsArray, IsNotEmpty, IsString } from "class-validator";
+import { MoodEnum } from "src/core/enums/mood.enum";
 
 export class CreateBlogPostInputDto {
   @IsNotEmpty()
@@ -11,6 +12,9 @@ export class CreateBlogPostInputDto {
 
   @IsNotEmpty()
   @IsArray()
-  @IsUUID("all", { each: true })
   categories: string[];
+
+  @IsNotEmpty()
+  @IsString()
+  mood: MoodEnum;
 }

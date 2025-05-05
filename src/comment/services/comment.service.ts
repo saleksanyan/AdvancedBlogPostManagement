@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { CommentEntity } from "src/comment/entities/comment.entity";
 import { Repository } from "typeorm";
@@ -75,12 +75,20 @@ export class CommentService {
     }
   }
 
-  async delete(id: string) {
+  async delete(id: string, userId: string) {
     const queryRunner = this.repository.manager.connection.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
+      const comment = await queryRunner.manager.getRepository(CommentEntity).findOne({
+        where: {id},
+        relations: ["post", "author", "post.author",]
+      })
+      if(userId != comment.author.id && userId != comment.post.author.id) {
+        throw new UnauthorizedException();
+      }
+
       const result = await queryRunner.manager
         .getRepository(CommentEntity)
         .delete(id);

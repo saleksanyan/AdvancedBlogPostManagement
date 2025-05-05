@@ -5,11 +5,13 @@ export class CommentOutputDto {
   comment: string;
   authorId: string;
   postId: string;
+  createdAt: Date;
 
   constructor(comment: CommentEntity) {
     this.id = comment.id;
     this.authorId = comment.author.id;
     this.postId = comment.post.id;
     this.comment = comment.content;
+    this.createdAt = comment.created_at;
   }
 }

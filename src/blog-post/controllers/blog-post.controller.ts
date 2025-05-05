@@ -42,16 +42,48 @@ export class BlogPostController {
   }
 
   @HttpCode(200)
-  @Get("category/:categoryId")
+  @Get("category/:categoryName")
   async getPostsByCategoryName(
     @Query("page") page: number = DEFAULT_PAGE,
     @Query("limit") limit: number = DEFAULT_LIMIT,
-    @Param("categoryId") categoryName: string,
+    @Param("categoryName") categoryName: string,
   ): Promise<BlogPostsWithCount> {
+    categoryName = categoryName.replaceAll('-', ' ');
+
     return await this.blogPostService.getByCategoryName(
       page,
       limit,
       categoryName,
+    );
+  }
+
+  @HttpCode(200)
+  @Get()
+  async getPostsByName(
+    @Query("page") page: number = DEFAULT_PAGE,
+    @Query("limit") limit: number = DEFAULT_LIMIT,
+    @Query("title") title: string,
+  ): Promise<BlogPostsWithCount> {
+    title = title.replaceAll('-', ' ');
+
+    return await this.blogPostService.getByTitle(
+      page,
+      limit,
+      title,
+    );
+  }
+
+  @HttpCode(200)
+  @Get("user/:username")
+  async getPostsByUserIde(
+    @Query("page") page: number = DEFAULT_PAGE,
+    @Query("limit") limit: number = DEFAULT_LIMIT,
+    @Param("username") username: string,
+  ): Promise<BlogPostsWithCount> {
+    return await this.blogPostService.getByUsername(
+      page,
+      limit,
+      username,
     );
   }
 

@@ -39,8 +39,10 @@ export class CommentController {
 
   @HttpCode(204)
   @Delete(":id")
-  async delete(@Param("id", CheckUUIDPipe) id: string) {
-    return await this.commentService.delete(id);
+  async delete(@Param("id", CheckUUIDPipe) id: string, @Req() req: Request,) {
+    const userId = (req as any).user;
+
+    return await this.commentService.delete(id, userId);
   }
 
   @HttpCode(200)

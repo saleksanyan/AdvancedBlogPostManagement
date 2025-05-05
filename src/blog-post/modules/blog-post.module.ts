@@ -9,6 +9,8 @@ import { CommentEntity } from "../../comment/entities/comment.entity";
 import { SendGridEmailProvider } from "src/core/email/interfaces/sendgrid-email-provider";
 import { UserEntity } from "../../user/entities/user.entity";
 import { BlogPostService } from "../services/blog-post.service";
+import { SearchController } from "../controllers/search.controller";
+import { SearchService } from "../services/search.service";
 
 @Module({
   imports: [
@@ -21,9 +23,10 @@ import { BlogPostService } from "../services/blog-post.service";
     UserModule,
     CategoryModule,
   ],
-  controllers: [BlogPostController],
+  controllers: [BlogPostController, SearchController],
   providers: [
     BlogPostService,
+    SearchService,
     {
       provide: "EmailProvider",
       useClass: SendGridEmailProvider,

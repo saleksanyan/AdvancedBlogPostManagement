@@ -13,6 +13,7 @@ import { CategoryEntity } from "../../category/entities/category.entity";
 import { BlogPostStatusEnum } from "../../core/enums/blog-post.enum";
 import { CommentEntity } from "../../comment/entities/comment.entity";
 import { UserEntity } from "../../user/entities/user.entity";
+import { MoodEnum } from "../../core/enums/mood.enum";
 
 @Entity("blog_post")
 export class BlogPostEntity {
@@ -65,4 +66,12 @@ export class BlogPostEntity {
 
   @OneToMany(() => CommentEntity, (comment) => comment.post)
   comments: CommentEntity[];
+
+  @Column({
+    type: "enum",
+    enum: MoodEnum,
+    nullable: false,
+    default: MoodEnum.CALM,
+  })
+  mood: MoodEnum;
 }

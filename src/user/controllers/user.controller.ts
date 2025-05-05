@@ -29,6 +29,7 @@ import { ResetPasswordDto } from "src/user/dtos/input/reset-password.dto";
 import { VerificationCodeDto } from "src/user/dtos/input/verification-code.dto";
 import { CodeTokenOutputDto } from "src/user/dtos/output/code-token.dto";
 import { UsersWithCount } from "../dtos/output/user.return-type";
+import { UserPostOutputDto } from "../dtos/output/user-post.dto";
 
 @UseFilters(HttpExceptionFilter)
 @Controller("user")
@@ -58,8 +59,16 @@ export class UserController {
   @Get("/:id")
   async getUserById(
     @Param("id", CheckUUIDPipe) id: string,
-  ): Promise<UserOutputDto> {
+  ): Promise<UserPostOutputDto> {
     return await this.userService.getById(id);
+  }
+
+  @Get()
+  async getUser(
+    @Req() req: Request,
+  ): Promise<UserPostOutputDto> {
+    const userId = (req as any).user;
+    return await this.userService.getById(userId);
   }
 
   @Post()
