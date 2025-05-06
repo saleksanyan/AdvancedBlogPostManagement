@@ -40,6 +40,7 @@ export class UserModule {
         { path: "post/user/:username", method: RequestMethod.GET },
         { path: "post/category/:categoryName", method: RequestMethod.GET },
         { path: "search", method: RequestMethod.GET },
+        { path: "comment/list/:postId", method: RequestMethod.GET },
       )
       .forRoutes("*");
   }

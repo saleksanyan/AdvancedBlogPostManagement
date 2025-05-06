@@ -120,21 +120,22 @@ export class CommentService {
   }
 
   async list(page: number, limit: number, postId: string) {
-    const options = { page, limit };
     const queryBuilder = this.repository.createQueryBuilder("comment");
+    
     queryBuilder
       .leftJoinAndSelect("comment.author", "author")
       .leftJoinAndSelect("comment.post", "post")
-      .where("post.id = :postId", { postId });
-
+      .where("post.id = :postId", { postId })
+      .orderBy("comment.created_at", "ASC");
+  
     const paginatedResult = await Paginator.paginate<CommentEntity>(
       queryBuilder,
-      options,
+      { page, limit }
     );
-
+  
     return new CommentWithCount(
       paginatedResult.items.map((post) => new CommentOutputDto(post)),
-      paginatedResult.meta.totalItems,
+      paginatedResult.meta.totalItems
     );
-  }
+  }  
 }

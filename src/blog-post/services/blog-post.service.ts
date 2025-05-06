@@ -147,7 +147,6 @@ export class BlogPostService {
     if (!entity) {
       throw new BlogPostNotFoundException();
     }
-console.log(entity);
 
     return new BlogPostOutputDto(entity);
   }
