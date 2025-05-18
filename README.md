@@ -59,4 +59,7 @@ SENDER_EMAIL= # Your sendgrid email
 
 JWT_SECRET_KEY= # Your JWT key
 JWT_EXPIRES_IN= # JWT expiration time
+
+GOOGLE_APPLICATION_CREDENTIALS= # Your google app credentials
+GCP_PROJECT_ID= #GCP project ID
 ```

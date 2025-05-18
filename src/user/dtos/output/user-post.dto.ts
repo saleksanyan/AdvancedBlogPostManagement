@@ -13,6 +13,8 @@ export class UserPostOutputDto {
     this.username = user.username;
     this.email = user.email;
     this.status = user.status;
-    this.posts = user.blogPosts?.map(post => new BasicBlogPostOutputDto(post));
+    this.posts = user.blogPosts?.map(
+      (post) => new BasicBlogPostOutputDto(post),
+    );
   }
 }

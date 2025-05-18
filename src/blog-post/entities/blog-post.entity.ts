@@ -14,6 +14,7 @@ import { BlogPostStatusEnum } from "../../core/enums/blog-post.enum";
 import { CommentEntity } from "../../comment/entities/comment.entity";
 import { UserEntity } from "../../user/entities/user.entity";
 import { MoodEnum } from "../../core/enums/mood.enum";
+import { BlogPostModeEnum } from "../../core/enums/blog-post-mode.enum";
 
 @Entity("blog_post")
 export class BlogPostEntity {
@@ -71,7 +72,15 @@ export class BlogPostEntity {
     type: "enum",
     enum: MoodEnum,
     nullable: false,
-    default: MoodEnum.CALM,
+    default: MoodEnum.NATURAL,
   })
   mood: MoodEnum;
+
+  @Column({
+    type: "enum",
+    enum: BlogPostModeEnum,
+    nullable: false,
+    default: BlogPostModeEnum.PUBLIC,
+  })
+  mode: BlogPostModeEnum;
 }

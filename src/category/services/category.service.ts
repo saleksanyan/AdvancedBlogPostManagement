@@ -14,19 +14,17 @@ export class CategoryService {
     private readonly repository: Repository<CategoryEntity>,
   ) {}
 
-  async list(page: number, limit: number): Promise<CategoriesWithCount> {
-    const options = { page, limit };
+  async list(): Promise<CategoriesWithCount> {
     const queryBuilder = this.repository.manager
       .getRepository(CategoryEntity)
       .createQueryBuilder("category");
-    const paginatedResult = await Paginator.paginate<CategoryEntity>(
-      queryBuilder,
-      options,
-    );
+    const categories = await queryBuilder.getMany();
+
+    const totalItems = categories.length;
 
     return new CategoriesWithCount(
-      paginatedResult.items.map((category) => new CategoryOutputDto(category)),
-      paginatedResult.meta.totalItems,
+      categories.map((category) => new CategoryOutputDto(category)),
+      totalItems,
     );
   }
 
@@ -121,10 +119,10 @@ export class CategoryService {
         });
 
         if (!category) {
-          await this.create({name: categoryName});
+          await this.create({ name: categoryName });
           category = await this.repository.findOne({
             where: { name: categoryName },
-          });  
+          });
         }
 
         return category;

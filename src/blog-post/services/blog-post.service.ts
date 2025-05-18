@@ -13,14 +13,17 @@ import { CategoryService } from "../../category/services/category.service";
 import { Inject } from "@nestjs/common";
 import { EmailProvider } from "../../core/email/interfaces/email-provider.interface";
 import { UserNotFoundException } from "../../core/exceptions/user-not-found.exception";
-import { DuplicateValueException } from "src/core/exceptions/duplicate-value.exception";
-import { UserEntity } from "src/user/entities/user.entity";
+import { DuplicateValueException } from "../../core/exceptions/duplicate-value.exception";
+import { UserEntity } from "../../user/entities/user.entity";
+import { BlogPostModeEnum } from "src/core/enums/blog-post-mode.enum";
+import { GeminiService } from "./gemini.service";
 
 export class BlogPostService {
   constructor(
     @InjectRepository(BlogPostEntity)
     private readonly repository: Repository<BlogPostEntity>,
     private readonly categoryService: CategoryService,
+    private readonly geminiService: GeminiService,
     @Inject("EmailProvider")
     private readonly emailProvider: EmailProvider,
   ) {}
@@ -43,36 +46,67 @@ export class BlogPostService {
     );
   }
 
-  async getByCategoryName(
-    page: number,
-    limit: number,
-    categoryName: string,
-  ): Promise<BlogPostsWithCount> {
-    const options = { page, limit };
-
+  async getByCategoryName(categoryName: string): Promise<BlogPostsWithCount> {
     const queryBuilder = this.repository
-    .createQueryBuilder("blogPost")
-    .innerJoin("blogPost.categories", "categories", "categories.name = :categoryName", { categoryName })
-    .leftJoinAndSelect("blogPost.author", "author")
-    .leftJoinAndSelect("blogPost.categories", "allCategories");
-  
-    const paginatedResult = await Paginator.paginate<BlogPostEntity>(
-      queryBuilder,
-      options,
-    );    
+      .createQueryBuilder("blogPost")
+      .innerJoin(
+        "blogPost.categories",
+        "categories",
+        "categories.name = :categoryName",
+        { categoryName },
+      )
+      .leftJoinAndSelect("blogPost.author", "author")
+      .leftJoinAndSelect("blogPost.categories", "allCategories")
+      .where("blogPost.mode = :mode", { mode: BlogPostModeEnum.PUBLIC });
+
+    const posts = await queryBuilder.getMany();
+
+    const totalItems = posts.length;
 
     return new BlogPostsWithCount(
-      paginatedResult.items.map((post) => new BlogPostOutputDto(post)),
-      paginatedResult.meta.totalItems,
+      posts.map((post) => new BlogPostOutputDto(post)),
+      totalItems,
+    );
+  }
+
+  async getByCategoryNameWithPagination(
+    categoryName: string,
+  ): Promise<BlogPostsWithCount> {
+    const page = 1;
+    const limit = 3;
+    const skip = (page - 1) * limit;
+
+    const queryBuilder = this.repository
+      .createQueryBuilder("blogPost")
+      .innerJoin(
+        "blogPost.categories",
+        "categories",
+        "categories.name = :categoryName",
+        { categoryName },
+      )
+      .leftJoinAndSelect("blogPost.author", "author")
+      .leftJoinAndSelect("blogPost.categories", "allCategories")
+      .where("blogPost.mode = :mode", { mode: BlogPostModeEnum.PUBLIC })
+      .take(limit)
+      .skip(skip);
+
+    const [items, total] = await queryBuilder.getManyAndCount();
+
+    return new BlogPostsWithCount(
+      items.map((post) => new BlogPostOutputDto(post)),
+      total,
     );
   }
 
   async getByUsername(
-    page: number,
-    limit: number,
     username: string,
+    currentUserId: string,
   ): Promise<BlogPostsWithCount> {
-    const options = { page, limit };
+    const author: UserEntity = await this.repository.manager
+      .getRepository(UserEntity)
+      .findOne({
+        where: { username },
+      });
 
     const queryBuilder = this.repository
       .createQueryBuilder("blogPost")
@@ -80,17 +114,21 @@ export class BlogPostService {
       .leftJoinAndSelect("blogPost.categories", "categories")
       .where("author.username = :username", { username });
 
-    const paginatedResult = await Paginator.paginate<BlogPostEntity>(
-      queryBuilder,
-      options,
-    );
+    if (currentUserId !== author.id) {
+      queryBuilder.andWhere("blogPost.mode = :publicMode", {
+        publicMode: BlogPostModeEnum.PUBLIC,
+      });
+    }
+
+    const posts = await queryBuilder.getMany();
+
+    const totalItems = posts.length;
 
     return new BlogPostsWithCount(
-      paginatedResult.items.map((post) => new BlogPostOutputDto(post)),
-      paginatedResult.meta.totalItems,
+      posts.map((post) => new BlogPostOutputDto(post)),
+      totalItems,
     );
   }
-
 
   async getByTitle(
     page: number,
@@ -102,7 +140,8 @@ export class BlogPostService {
       .createQueryBuilder("blogPost")
       .leftJoinAndSelect("blogPost.author", "author")
       .leftJoinAndSelect("blogPost.categories", "categories")
-      .where("blogPost.title = :title", { title });
+      .where("blogPost.title = :title", { title })
+      .where("blogPost.mode = :mode", { mode: BlogPostModeEnum.PUBLIC });
 
     const paginatedResult = await Paginator.paginate<BlogPostEntity>(
       queryBuilder,
@@ -125,7 +164,8 @@ export class BlogPostService {
       .createQueryBuilder("blogPost")
       .leftJoinAndSelect("blogPost.author", "author")
       .leftJoinAndSelect("blogPost.categories", "categories")
-      .where("blogPost.status = :status", { status });
+      .where("blogPost.status = :status", { status })
+      .where("blogPost.mode = :mode", { mode: BlogPostModeEnum.PUBLIC });
 
     const paginatedResult = await Paginator.paginate<BlogPostEntity>(
       queryBuilder,
@@ -184,7 +224,10 @@ export class BlogPostService {
         title: createBlogPostInputDto.title,
         content: createBlogPostInputDto.content,
         categories: categories,
-        mood: createBlogPostInputDto.mood
+        mood: await this.geminiService.detectMood(
+          createBlogPostInputDto.content,
+        ),
+        mode: createBlogPostInputDto.mode,
       });
 
       const savedEntity = await queryRunner.manager
@@ -199,15 +242,15 @@ export class BlogPostService {
         });
 
       await queryRunner.commitTransaction();
-      await this.emailProvider.sendEmail(
-        resultedBlogPost.author.email,
-        "Post Creation",
-        {
-          username: resultedBlogPost.author.username,
-          post_title: resultedBlogPost.title,
-        },
-        "post-creation-confirmation/index",
-      );
+      // await this.emailProvider.sendEmail(
+      //   resultedBlogPost.author.email,
+      //   "Post Creation",
+      //   {
+      //     username: resultedBlogPost.author.username,
+      //     post_title: resultedBlogPost.title,
+      //   },
+      //   "post-creation-confirmation/index",
+      // );
       return new BlogPostOutputDto(resultedBlogPost);
     } catch (error) {
       await queryRunner.rollbackTransaction();
@@ -225,7 +268,6 @@ export class BlogPostService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      await queryRunner.commitTransaction();
       const post = await queryRunner.manager
         .getRepository(BlogPostEntity)
         .findOne({
@@ -245,7 +287,11 @@ export class BlogPostService {
 
       post.content = updateBlogPostInputDto.content;
       post.title = updateBlogPostInputDto.title;
-      post.mood = updateBlogPostInputDto.mood; 
+      post.mood = await this.geminiService.detectMood(
+        updateBlogPostInputDto.content,
+      );
+      post.mode = updateBlogPostInputDto.mode;
+      console.log("post.mood ", post.mood);
 
       const updatedPost = await queryRunner.manager
         .getRepository(BlogPostEntity)
@@ -282,6 +328,72 @@ export class BlogPostService {
       }
 
       entity.status = updateStatusInputDto.status;
+
+      const updatedEntity = await queryRunner.manager
+        .getRepository(BlogPostEntity)
+        .save(entity);
+
+      await queryRunner.commitTransaction();
+
+      return new BlogPostOutputDto(updatedEntity);
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async addLike(id: string): Promise<BlogPostOutputDto> {
+    const queryRunner = this.repository.manager.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const entity = await queryRunner.manager
+        .getRepository(BlogPostEntity)
+        .findOne({
+          where: { id: id },
+          relations: ["author", "categories"],
+        });
+
+      if (!entity) {
+        throw new BlogPostNotFoundException();
+      }
+
+      entity.likes = entity.likes + 1;
+
+      const updatedEntity = await queryRunner.manager
+        .getRepository(BlogPostEntity)
+        .save(entity);
+
+      await queryRunner.commitTransaction();
+
+      return new BlogPostOutputDto(updatedEntity);
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async removeLike(id: string): Promise<BlogPostOutputDto> {
+    const queryRunner = this.repository.manager.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const entity = await queryRunner.manager
+        .getRepository(BlogPostEntity)
+        .findOne({
+          where: { id: id },
+          relations: ["author", "categories"],
+        });
+
+      if (!entity) {
+        throw new BlogPostNotFoundException();
+      }
+
+      entity.likes = entity.likes > 0 ? entity.likes - 1 : entity.likes;
 
       const updatedEntity = await queryRunner.manager
         .getRepository(BlogPostEntity)

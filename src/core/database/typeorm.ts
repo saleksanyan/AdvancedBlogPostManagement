@@ -8,6 +8,7 @@ import { CommentEntity } from "../../comment/entities/comment.entity";
 import { AccessTokenEntity } from "../../user/entities/access-token.entity";
 import { UserEntity } from "../../user/entities/user.entity";
 import { VerificationCodeEntity } from "../../user/entities/verification-code.entity";
+import { NotificationEntity } from "../../notification/entities/notification.entity";
 
 config({ path: `.env` });
 
@@ -30,6 +31,7 @@ export const createDataSourceOptions = (
       CommentEntity,
       AccessTokenEntity,
       VerificationCodeEntity,
+      NotificationEntity,
     ],
     migrations: [join(__dirname, "migrations/*{.ts,.js}")],
     migrationsTableName: "migrations",

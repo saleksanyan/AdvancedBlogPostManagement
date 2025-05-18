@@ -25,7 +25,7 @@ export class VerificationCodeEntity {
   @Column({ type: "enum", enum: VerificationCodeStatusEnum })
   status: VerificationCodeStatusEnum;
 
-  @Column({ type: "int", default: 0})
+  @Column({ type: "int", default: 0 })
   attemp_count: number;
 
   @Column({ type: "timestamp", nullable: true })

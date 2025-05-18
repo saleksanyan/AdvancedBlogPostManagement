@@ -7,6 +7,7 @@ import { SendGridEmailProvider } from "src/core/email/interfaces/sendgrid-email-
 import { AccessTokenEntity } from "../entities/access-token.entity";
 import { UserEntity } from "../entities/user.entity";
 import { VerificationCodeEntity } from "../entities/verification-code.entity";
+import { NotificationEntity } from "src/notification/entities/notification.entity";
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { VerificationCodeEntity } from "../entities/verification-code.entity";
       UserEntity,
       AccessTokenEntity,
       VerificationCodeEntity,
+      NotificationEntity,
     ]),
   ],
   controllers: [UserController],
@@ -37,10 +39,18 @@ export class UserModule {
         { path: "user", method: RequestMethod.POST },
         { path: "post/:id", method: RequestMethod.GET },
         { path: "category/list", method: RequestMethod.GET },
-        { path: "post/user/:username", method: RequestMethod.GET },
-        { path: "post/category/:categoryName", method: RequestMethod.GET },
+        {
+          path: "post/category/:categoryName/with-pages",
+          method: RequestMethod.GET,
+        },
+        {
+          path: "post/edit-text",
+          method: RequestMethod.POST,
+        },
         { path: "search", method: RequestMethod.GET },
         { path: "comment/list/:postId", method: RequestMethod.GET },
+        { path: "post/category/:categoryName", method: RequestMethod.GET },
+        { path: "notifications", method: RequestMethod.POST },
       )
       .forRoutes("*");
   }

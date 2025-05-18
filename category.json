@@ -1,0 +1,102 @@
+[
+  {
+    "id": "b37f713d-d253-45ae-817e-1000ff137fb4",
+    "name": "Lifestyle",
+    "created_at": "12/5/2025 10:34:49"
+  },
+  {
+    "id": "4127f4fd-a112-48c4-8905-340ffc77c4b0",
+    "name": "Travel",
+    "created_at": "12/5/2025 10:35:05"
+  },
+  {
+    "id": "5b9fd512-bc5c-4c60-a3d0-5ffb6fa41af6",
+    "name": "Food & Recipes",
+    "created_at": "12/5/2025 10:35:12"
+  },
+  {
+    "id": "d0536515-03c8-471e-8cce-1660cbb63ed9",
+    "name": "Health & Wellness",
+    "created_at": "12/5/2025 10:35:21"
+  },
+  {
+    "id": "22fe22df-98b8-4a3c-ba16-ad0f4efa5bee",
+    "name": "Technology",
+    "created_at": "12/5/2025 10:35:28"
+  },
+  {
+    "id": "5925481e-0d54-4e0b-85fe-6dc04487a6f4",
+    "name": "Finance & Money",
+    "created_at": "12/5/2025 10:35:35"
+  },
+  {
+    "id": "a0a02cb5-66a2-4052-af66-9b2718572d9e",
+    "name": "Education & Learning",
+    "created_at": "12/5/2025 10:35:42.1"
+  },
+  {
+    "id": "ef2f412a-14a7-4bbe-b1b1-636e9b5814e7",
+    "name": "Entertainment",
+    "created_at": "12/5/2025 10:35:49.1"
+  },
+  {
+    "id": "16c8287d-abc9-4407-9d78-ed15e891db50",
+    "name": "Business & Marketing",
+    "created_at": "12/5/2025 10:35:55.1"
+  },
+  {
+    "id": "258d2bc1-9942-4136-8000-5712b5a106aa",
+    "name": "Fashion & Beauty",
+    "created_at": "12/5/2025 10:36:05"
+  },
+  {
+    "id": "d338ed0d-ee65-4415-a49b-0381089e161d",
+    "name": "DIY & Crafts",
+    "created_at": "12/5/2025 10:36:11.1"
+  },
+  {
+    "id": "61c3da61-b921-4474-bfd1-77c6ec9d6ed1",
+    "name": "Parenting & Family",
+    "created_at": "12/5/2025 10:36:19"
+  },
+  {
+    "id": "eeefb3a6-c902-4eb7-ba66-5cfa6e023db6",
+    "name": "Personal Development",
+    "created_at": "12/5/2025 10:36:25"
+  },
+  {
+    "id": "5aad1c57-a090-452a-8366-5a116dd799b4",
+    "name": "Home & Garden",
+    "created_at": "12/5/2025 10:36:32"
+  },
+  {
+    "id": "a641137c-bdec-4a3b-b30d-2cf9521b8c87",
+    "name": "Relationships & Dating",
+    "created_at": "12/5/2025 10:36:40.1"
+  },
+  {
+    "id": "a56dc420-6096-4d6f-9ec8-77abf5365693",
+    "name": "Culture & Society",
+    "created_at": "12/5/2025 10:36:47"
+  },
+  {
+    "id": "90aaa381-0ce9-474d-8111-c9f2f99c0c5c",
+    "name": "Science & Innovation",
+    "created_at": "12/5/2025 10:36:53.1"
+  },
+  {
+    "id": "24e4a571-b0fc-4932-aef0-fb3a3f208deb",
+    "name": "Sports & Fitness",
+    "created_at": "12/5/2025 10:37:00.1"
+  },
+  {
+    "id": "9ce0cee6-6d1b-41c4-a44f-d0e878a9ea29",
+    "name": "Photography & Art",
+    "created_at": "12/5/2025 10:37:06.1"
+  },
+  {
+    "id": "086d8fca-5bbe-4a89-81c5-51a3d9e2b399",
+    "name": "Gaming",
+    "created_at": "12/5/2025 10:37:11.1"
+  }
+]

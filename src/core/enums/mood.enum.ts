@@ -1,8 +1,8 @@
 export enum MoodEnum {
-    SAD = "sad",
-    HAPPY = "happy",
-    EXCITED = "excited",
-    CALM = "calm",
-    ANGRY = "angry"
-  }
-  
+  SAD = "sad",
+  HAPPY = "happy",
+  EXCITED = "excited",
+  NATURAL = "neutral",
+  ANGRY = "angry",
+  CREATIVE = "creative",
+}

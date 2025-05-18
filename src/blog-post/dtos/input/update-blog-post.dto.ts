@@ -1,4 +1,5 @@
 import { IsArray, IsNotEmpty, IsString, IsUUID } from "class-validator";
+import { BlogPostModeEnum } from "src/core/enums/blog-post-mode.enum";
 import { MoodEnum } from "src/core/enums/mood.enum";
 
 export class UpdateBlogPostInputDto {
@@ -21,5 +22,5 @@ export class UpdateBlogPostInputDto {
 
   @IsNotEmpty()
   @IsString()
-  mood: MoodEnum;
+  mode: BlogPostModeEnum;
 }

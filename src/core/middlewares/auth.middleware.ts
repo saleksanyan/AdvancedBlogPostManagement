@@ -21,6 +21,10 @@ export class AuthMiddleware implements NestMiddleware {
   ) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
+    if (req.headers?.upgrade === "websocket") {
+      return next();
+    }
+
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -57,7 +61,7 @@ export class AuthMiddleware implements NestMiddleware {
     if (!existingAccessToken) {
       throw new UnauthorizedException();
     }
-        
+
     req["user"] = user.id;
     next();
   }

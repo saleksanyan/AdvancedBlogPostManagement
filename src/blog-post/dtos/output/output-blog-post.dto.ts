@@ -1,6 +1,7 @@
 import { BlogPostStatusEnum } from "src/core/enums/blog-post.enum";
 import { BlogPostEntity } from "src/blog-post/entities/blog-post.entity";
 import { MoodEnum } from "src/core/enums/mood.enum";
+import { BlogPostModeEnum } from "src/core/enums/blog-post-mode.enum";
 
 export class BlogPostOutputDto {
   id: string;
@@ -11,6 +12,8 @@ export class BlogPostOutputDto {
   status: BlogPostStatusEnum;
   createdAt: Date;
   mood: MoodEnum;
+  mode: BlogPostModeEnum;
+  likes: number;
 
   constructor(post: BlogPostEntity) {
     this.id = post.id;
@@ -21,5 +24,7 @@ export class BlogPostOutputDto {
     this.status = post.status;
     this.createdAt = post.created_at;
     this.mood = post.mood;
+    this.mode = post.mode;
+    this.likes = post.likes;
   }
 }

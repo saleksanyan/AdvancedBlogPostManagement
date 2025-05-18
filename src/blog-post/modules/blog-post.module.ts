@@ -11,6 +11,7 @@ import { UserEntity } from "../../user/entities/user.entity";
 import { BlogPostService } from "../services/blog-post.service";
 import { SearchController } from "../controllers/search.controller";
 import { SearchService } from "../services/search.service";
+import { GeminiService } from "../services/gemini.service";
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { SearchService } from "../services/search.service";
   providers: [
     BlogPostService,
     SearchService,
+    GeminiService,
     {
       provide: "EmailProvider",
       useClass: SendGridEmailProvider,

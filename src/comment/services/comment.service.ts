@@ -10,13 +10,14 @@ import { UserNotFoundException } from "src/core/exceptions/user-not-found.except
 import { BlogPostNotFoundException } from "src/core/exceptions/blog-post-not-found.exception";
 import { CommentNotFoundException } from "src/core/exceptions/comment-not-found.exception";
 import { CommentWithCount } from "../dtos/output/comment.return-type";
-import { Paginator } from "src/core/paginator/paginator";
-
+import { NotificationsService } from "src/notification/services/notification.service";
+import { NotificationInputDto } from "src/notification/dtos/input/notification.dto";
 @Injectable()
 export class CommentService {
   constructor(
     @InjectRepository(CommentEntity)
     private readonly repository: Repository<CommentEntity>,
+    private notificationsService: NotificationsService,
   ) {}
 
   async addComment(authorId: string, commentDto: CreateCommentInputDto) {
@@ -64,6 +65,14 @@ export class CommentService {
           relations: ["author", "post"],
         });
 
+      const notificationDto = new NotificationInputDto();
+      notificationDto.postId = post.id;
+      notificationDto.link = `/post/${post.id}`;
+      notificationDto.message = `New comment on your post: "${commentDto.comment}"`;
+      notificationDto.type = "NEW_COMMENT";
+
+      await this.notificationsService.create(notificationDto);
+
       await queryRunner.commitTransaction();
 
       return new CommentOutputDto(resultedComment);
@@ -81,11 +90,13 @@ export class CommentService {
     await queryRunner.startTransaction();
 
     try {
-      const comment = await queryRunner.manager.getRepository(CommentEntity).findOne({
-        where: {id},
-        relations: ["post", "author", "post.author",]
-      })
-      if(userId != comment.author.id && userId != comment.post.author.id) {
+      const comment = await queryRunner.manager
+        .getRepository(CommentEntity)
+        .findOne({
+          where: { id },
+          relations: ["post", "author", "post.author"],
+        });
+      if (userId != comment.author.id && userId != comment.post.author.id) {
         throw new UnauthorizedException();
       }
 
@@ -119,23 +130,21 @@ export class CommentService {
     return new CommentOutputDto(comment);
   }
 
-  async list(page: number, limit: number, postId: string) {
+  async list(postId: string) {
     const queryBuilder = this.repository.createQueryBuilder("comment");
-    
+
     queryBuilder
       .leftJoinAndSelect("comment.author", "author")
       .leftJoinAndSelect("comment.post", "post")
       .where("post.id = :postId", { postId })
       .orderBy("comment.created_at", "ASC");
-  
-    const paginatedResult = await Paginator.paginate<CommentEntity>(
-      queryBuilder,
-      { page, limit }
-    );
-  
+
+    const comments = await queryBuilder.getMany();
+    const totalItems = comments.length;
+
     return new CommentWithCount(
-      paginatedResult.items.map((post) => new CommentOutputDto(post)),
-      paginatedResult.meta.totalItems
+      comments.map((comment) => new CommentOutputDto(comment)),
+      totalItems,
     );
-  }  
+  }
 }

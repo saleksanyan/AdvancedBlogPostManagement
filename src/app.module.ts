@@ -7,6 +7,8 @@ import { ConfigModule } from "@nestjs/config";
 import { CategoryModule } from "./category/modules/category.module";
 import { JwtModule } from "@nestjs/jwt";
 import { CommentModule } from "./comment/modules/comment.module";
+import { NotificationsModule } from "./notification/modules/notification.modile";
+import { NotificationsGateway } from "./notification/services/notifications.gateway";
 
 @Module({
   imports: [
@@ -17,6 +19,7 @@ import { CommentModule } from "./comment/modules/comment.module";
     UserModule,
     BlogPostModule,
     CategoryModule,
+    NotificationsModule,
     TypeOrmModule.forRoot({
       ...AppDataSource.options,
     }),
@@ -27,6 +30,6 @@ import { CommentModule } from "./comment/modules/comment.module";
     }),
   ],
   controllers: [],
-  providers: [],
+  providers: [NotificationsGateway],
 })
 export class AppModule {}

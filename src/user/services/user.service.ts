@@ -79,14 +79,16 @@ export class UserService {
         throw new ExpiredVerificationCodeException();
       }
 
-      if(storedVerificationCode.attemp_count > 3) {
+      if (storedVerificationCode.attemp_count > 3) {
         throw new ExceededVerificationCodeAttemptsException();
       }
 
-      if (verificationCode !== storedVerificationCode.code) {        
-        await queryRunner.manager.getRepository(VerificationCodeEntity).update(storedVerificationCode.id, {
-          attemp_count: (storedVerificationCode.attemp_count+1),
-        });
+      if (verificationCode !== storedVerificationCode.code) {
+        await queryRunner.manager
+          .getRepository(VerificationCodeEntity)
+          .update(storedVerificationCode.id, {
+            attemp_count: storedVerificationCode.attemp_count + 1,
+          });
 
         throw new WrongVerificationCodeException();
       }
@@ -101,11 +103,11 @@ export class UserService {
       await queryRunner.commitTransaction();
 
       return new UserPostOutputDto(user);
-    } catch (error) {      
+    } catch (error) {
       if (error instanceof WrongVerificationCodeException) {
         await queryRunner.commitTransaction();
       } else {
-      await queryRunner.rollbackTransaction();
+        await queryRunner.rollbackTransaction();
       }
       throw error;
     } finally {
@@ -143,7 +145,10 @@ export class UserService {
         throw new VerificationCodeNotFoundException();
       }
 
-      if (storedVerificationCode.expires_at < new Date() || storedVerificationCode.attemp_count > 3) {
+      if (
+        storedVerificationCode.expires_at < new Date() ||
+        storedVerificationCode.attemp_count > 3
+      ) {
         await queryRunner.manager
           .getRepository(VerificationCodeEntity)
           .update(storedVerificationCode.id, {
@@ -154,9 +159,11 @@ export class UserService {
       }
 
       if (verificationCode !== storedVerificationCode.code) {
-        await queryRunner.manager.getRepository(VerificationCodeEntity).update(storedVerificationCode.id, {
-          attemp_count: storedVerificationCode.attemp_count+1,
-        });
+        await queryRunner.manager
+          .getRepository(VerificationCodeEntity)
+          .update(storedVerificationCode.id, {
+            attemp_count: storedVerificationCode.attemp_count + 1,
+          });
 
         await queryRunner.commitTransaction();
 
@@ -174,19 +181,22 @@ export class UserService {
         status: UserStatusEnum.ACTIVE,
       });
 
-      const accessToken = await queryRunner.manager.getRepository(AccessTokenEntity).findOne({
-        where: { user: { id: userId } }
-      });
+      const accessToken = await queryRunner.manager
+        .getRepository(AccessTokenEntity)
+        .findOne({
+          where: { user: { id: userId } },
+        });
 
-      await queryRunner.manager.getRepository(AccessTokenEntity).update(accessToken.id, {
-        is_active: false
-      });
+      await queryRunner.manager
+        .getRepository(AccessTokenEntity)
+        .update(accessToken.id, {
+          is_active: false,
+        });
 
       await queryRunner.commitTransaction();
 
       return new UserPostOutputDto(user);
     } catch (error) {
-      
       if (!(error instanceof WrongVerificationCodeException)) {
         await queryRunner.rollbackTransaction();
       }
@@ -196,9 +206,7 @@ export class UserService {
     }
   }
 
-  async resendCode(   
-    userId: string,
-  ): Promise<{code: string}> {
+  async resendCode(userId: string): Promise<{ code: string }> {
     const queryRunner =
       this.userRepository.manager.connection.createQueryRunner();
     await queryRunner.connect();
@@ -221,15 +229,15 @@ export class UserService {
           },
         });
 
-        const oneMinute = 60 * 1000;
-        if (
-          storedVerificationCode &&
-          new Date().getTime() - storedVerificationCode.created_at.getTime() <
-            oneMinute
-        ) {
-          throw new VerificationCodeRateLimitException();
-        }
-        if (storedVerificationCode) {
+      const oneMinute = 60 * 1000;
+      if (
+        storedVerificationCode &&
+        new Date().getTime() - storedVerificationCode.created_at.getTime() <
+          oneMinute
+      ) {
+        throw new VerificationCodeRateLimitException();
+      }
+      if (storedVerificationCode) {
         await queryRunner.manager
           .getRepository(VerificationCodeEntity)
           .update(storedVerificationCode.id, {
@@ -254,7 +262,7 @@ export class UserService {
 
       await queryRunner.commitTransaction();
 
-      return {code: code};
+      return { code: code };
     } catch (error) {
       await queryRunner.rollbackTransaction();
       throw error;
@@ -334,7 +342,7 @@ export class UserService {
     entity.user = user;
     entity.token = await this.jwtService.signAsync(payload, {
       secret: process.env.JWT_SECRET_KEY,
-      expiresIn: process.env.JWT_EXPIRES_IN
+      expiresIn: process.env.JWT_EXPIRES_IN,
     });
 
     return await queryRunner.manager
@@ -546,7 +554,10 @@ export class UserService {
   }
 
   async getById(id: string): Promise<UserPostOutputDto> {
-    const user = await this.userRepository.findOne({ where: { id: id }, relations: ["blogPosts"] });
+    const user = await this.userRepository.findOne({
+      where: { id: id },
+      relations: ["blogPosts"],
+    });
     if (!user) {
       throw new UserNotFoundException();
     }

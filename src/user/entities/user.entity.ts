@@ -11,6 +11,7 @@ import { CommentEntity } from "../../comment/entities/comment.entity";
 import { VerificationCodeEntity } from "./verification-code.entity";
 import { AccessTokenEntity } from "./access-token.entity";
 import { UserStatusEnum } from "../../core/enums/user.enum";
+import { NotificationEntity } from "../../notification/entities/notification.entity";
 
 @Entity("user")
 export class UserEntity {
@@ -55,6 +56,9 @@ export class UserEntity {
 
   @OneToMany(() => CommentEntity, (comment) => comment.author)
   comments: CommentEntity[];
+
+  @OneToMany(() => NotificationEntity, (notification) => notification.user)
+  notifications: NotificationEntity[];
 
   @OneToMany(
     () => VerificationCodeEntity,

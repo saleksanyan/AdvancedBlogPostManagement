@@ -310,6 +310,100 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Update Text with AI",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"content\": \"I want to eat a cake\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/post/edit-text",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"post",
+								"edit-text"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Like Post",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjZTQxMjBjZS1mYmQwLTQ3ZTUtYTJiYy01ODMwYjQwNTkzODIiLCJpYXQiOjE3NDc0Nzk0MjUsImV4cCI6MTc0NzU2NTgyNX0.1I9MR_WXLgMBb3uuOm_mjfCCnilc0rg3nRSd71F9ijk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/post/add-like/510cba24-16e8-4e09-8ae9-b76b51467a1a",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"post",
+								"add-like",
+								"510cba24-16e8-4e09-8ae9-b76b51467a1a"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove Post",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjZTQxMjBjZS1mYmQwLTQ3ZTUtYTJiYy01ODMwYjQwNTkzODIiLCJpYXQiOjE3NDc0Nzk0MjUsImV4cCI6MTc0NzU2NTgyNX0.1I9MR_WXLgMBb3uuOm_mjfCCnilc0rg3nRSd71F9ijk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/post/remove-like/510cba24-16e8-4e09-8ae9-b76b51467a1a",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"post",
+								"remove-like",
+								"510cba24-16e8-4e09-8ae9-b76b51467a1a"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -667,6 +761,139 @@
 								"comment",
 								"list",
 								"670d0cf5-705b-423d-82a7-8375c12b050e"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Notifications",
+			"item": [
+				{
+					"name": "Get Notifications",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjZTQxMjBjZS1mYmQwLTQ3ZTUtYTJiYy01ODMwYjQwNTkzODIiLCJpYXQiOjE3NDcyNDQyOTEsImV4cCI6MTc0NzMzMDY5MX0.aWBZB8Drv6d7yO9a_t9-IJQV9626f5XeXOVXMBL5c_w",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/notifications",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"notifications"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Notifications",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjZTQxMjBjZS1mYmQwLTQ3ZTUtYTJiYy01ODMwYjQwNTkzODIiLCJpYXQiOjE3NDcyNDQyOTEsImV4cCI6MTc0NzMzMDY5MX0.aWBZB8Drv6d7yO9a_t9-IJQV9626f5XeXOVXMBL5c_w",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n        \"userId\": \"ce4120ce-fbd0-47e5-a2bc-5830b4059382\",\n        \"message\": \"New comment on your post: \\\"hiii\\\"\",\n        \"type\": \"NEW_COMMENT\",\n        \"link\": \"/post/9a417bdb-5b70-4896-a2de-6311b8011e78\"\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/notifications",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"notifications"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Notifications to SEEN",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjZTQxMjBjZS1mYmQwLTQ3ZTUtYTJiYy01ODMwYjQwNTkzODIiLCJpYXQiOjE3NDczMDU1NzQsImV4cCI6MTc0NzM5MTk3NH0.uoykJDQg97T_XOpT0gBomWp6RIh1FS3bWFuCe55x6fI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/notifications/4f0d9c53-8c46-46b5-b912-5774b03a5fb0/read",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"notifications",
+								"4f0d9c53-8c46-46b5-b912-5774b03a5fb0",
+								"read"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Mark All Read Notifications",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjZTQxMjBjZS1mYmQwLTQ3ZTUtYTJiYy01ODMwYjQwNTkzODIiLCJpYXQiOjE3NDczMDU1NzQsImV4cCI6MTc0NzM5MTk3NH0.uoykJDQg97T_XOpT0gBomWp6RIh1FS3bWFuCe55x6fI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/notifications/mark-all-read",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"notifications",
+								"mark-all-read"
 							]
 						}
 					},
